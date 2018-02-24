@@ -45,4 +45,7 @@ faces, ids = getImageAndLabels('./datasets')
 
 recognizer.train(faces, np.array(ids))
 
-recognizer.save('./training/trainer.yml')
+if(cv2.__version__ == '3.2.0'):
+    recognizer.save('./training/trainer.yml')
+else:
+    recognizer.write('./training/trainer.yml')

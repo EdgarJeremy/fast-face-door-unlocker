@@ -1,5 +1,4 @@
 #!/usr/bin/python
-
 import cv2
 import numpy as np
 import base64
@@ -45,6 +44,8 @@ while True:
         if(level_cocok < 70):
             if(id == 1):
                 name = 'Edgar'
+            elif(id == 2):
+                name = "Melqu"
         else:
             name = 'Tidak dikenal'
 

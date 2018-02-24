@@ -26,6 +26,7 @@ while(True):
         cv2.imwrite('./datasets/User.' + str(face_id) + '.' + str(count) + '.jpg', gray[y:y+h, x:x+w])
 
     print(count)
+    cv2.imshow('Rekam', image_frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
