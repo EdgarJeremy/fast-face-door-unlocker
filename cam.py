@@ -9,7 +9,10 @@ if(cv2.__version__ == '3.2.0'):
 else:
     recognizer = cv2.face.LBPHFaceRecognizer_create()
 
-recognizer.load('./training/trainer.yml')
+if(cv2.__version == '3.2.0'):
+    recognizer.load('./training/trainer.yml')
+else:
+    recognizer.read('./training/trainer.yml')
 
 cascadePath = './cascades/haarcascade_frontalface_default.xml'
 
