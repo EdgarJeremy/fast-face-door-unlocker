@@ -9,7 +9,7 @@ if(cv2.__version__ == '3.2.0'):
 else:
     recognizer = cv2.face.LBPHFaceRecognizer_create()
 
-if(cv2.__version == '3.2.0'):
+if(cv2.__version__ == '3.2.0'):
     recognizer.load('./training/trainer.yml')
 else:
     recognizer.read('./training/trainer.yml')
