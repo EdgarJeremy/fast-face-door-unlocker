@@ -4,63 +4,67 @@ import numpy as np
 import base64
 import db
 from socketIO_client_nexus import SocketIO, LoggingNamespace
+import collect
 
-if(cv2.__version__ == '3.2.0'):
-    recognizer = cv2.face.createLBPHFaceRecognizer()
-else:
-    recognizer = cv2.face.LBPHFaceRecognizer_create()
 
-if(cv2.__version__ == '3.2.0'):
-    recognizer.load('./training/trainer.yml')
-else:
-    recognizer.read('./training/trainer.yml')
 
-socketIO = SocketIO("127.0.0.1", 2000, LoggingNamespace)
+def start():
+    if(cv2.__version__ == '3.2.0'):
+        recognizer = cv2.face.createLBPHFaceRecognizer()
+    else:
+        recognizer = cv2.face.LBPHFaceRecognizer_create()
 
-cascadePath = './cascades/haarcascade_frontalface_default.xml'
+    if(cv2.__version__ == '3.2.0'):
+        recognizer.load('./training/trainer.yml')
+    else:
+        recognizer.read('./training/trainer.yml')
+        
+    socketIO = SocketIO("127.0.0.1", 2000, LoggingNamespace)
 
-faceCascade = cv2.CascadeClassifier(cascadePath)
+    cascadePath = './cascades/haarcascade_frontalface_default.xml'
 
-font = cv2.FONT_HERSHEY_SIMPLEX
+    faceCascade = cv2.CascadeClassifier(cascadePath)
 
-cam = cv2.VideoCapture(0)
+    font = cv2.FONT_HERSHEY_SIMPLEX
 
-padding = 20
+    cam = cv2.VideoCapture(0)
 
-while True:
+    padding = 20
 
-    name = 'Tidak dikenal'
+    while True:
 
-    ret, im = cam.read()
+        name = 'Tidak dikenal'
 
-    gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+        ret, im = cam.read()
 
-    faces = faceCascade.detectMultiScale(gray, 1.5, 5)
-    
-    if(len(faces) > 0):
+        gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
-        (x, y, w, h) = faces[0]
-        #cv2.rectangle(im, (x-padding, y-padding), (x+w+padding, y+h+padding), (0, 255, 0), 2)
+        faces = faceCascade.detectMultiScale(gray, 1.5, 5)
+        
+        if(len(faces) > 0):
 
-        id, level_cocok = recognizer.predict(gray[y:y+h, x:x+w])
-        print(id)
-        print(level_cocok)
+            (x, y, w, h) = faces[0]
+            #cv2.rectangle(im, (x-padding, y-padding), (x+w+padding, y+h+padding), (0, 255, 0), 2)
 
-        if(level_cocok < 70):
-            name = db.getNama(id)
-        else:
-            name = 'Tidak dikenal'
+            id, level_cocok = recognizer.predict(gray[y:y+h, x:x+w])
+            print(id)
+            print(level_cocok)
 
-        # cv2.rectangle(im, (x-22, y-90), (x+w+22, y-22), (0, 255, 0), -1)
-        cv2.putText(im, str(name), (x, y-40), font, 1, (0,0,0), 3)
+            if(level_cocok < 70):
+                name = db.getNama(id)
+            else:
+                name = 'Tidak dikenal'
 
-    cv2.imshow('Feed', im)
-    _, buf = cv2.imencode(".jpg", im)
-    encode = base64.b64encode(buf)
-    socketIO.emit("stream",encode)
-    
-    if(cv2.waitKey(1) & 0xFF == ord('q')):
-        break
+            # cv2.rectangle(im, (x-22, y-90), (x+w+22, y-22), (0, 255, 0), -1)
+            cv2.putText(im, str(name), (x, y-40), font, 1, (0,0,0), 3)
 
-cam.release()
-cv2.destroyAllWindows()
+        cv2.imshow('Feed', im)
+        _, buf = cv2.imencode(".jpg", im)
+        encode = base64.b64encode(buf)
+        socketIO.emit("stream",encode)
+        
+        if(cv2.waitKey(1) & 0xFF == ord('q')):
+            break
+
+    cam.release()
+    cv2.destroyAllWindows()

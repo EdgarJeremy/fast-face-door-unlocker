@@ -2,50 +2,59 @@
 
 import cv2
 import db
+import trainer
 
-vid_cam = cv2.VideoCapture(0)
-face_detector = cv2.CascadeClassifier('./cascades/haarcascade_frontalface_default.xml')
+def start():
 
-nama = raw_input("Masukkan Nama : ")
-print("Menginput ke database...")
-face_id = db.simpan(nama)
-print("Tersimpan {} dengan id {}".format(nama,face_id))
-count = 0
-samples = 100
-start = False
+    vid_cam = cv2.VideoCapture(0)
+    face_detector = cv2.CascadeClassifier('./cascades/haarcascade_frontalface_default.xml')
 
-while(True):
+    nama = raw_input("Masukkan Nama : ")
+    print("Menginput ke database...")
+    face_id = db.simpan(nama)
+    print("Tersimpan {} dengan id {}".format(nama,face_id))
+    count = 0
+    samples = 100
+    start = False
 
-    _, image_frame = vid_cam.read()
+    print("Perekaman siap, letakkan wajah di dalam kotak hijau dan tekan tombol `s` jika sudah siap")
 
-    gray = cv2.cvtColor(image_frame, cv2.COLOR_BGR2GRAY)
+    while(True):
 
-    faces = face_detector.detectMultiScale(gray, 1.3, 5)
+        _, image_frame = vid_cam.read()
 
-    imw, imh, imc = image_frame.shape
+        gray = cv2.cvtColor(image_frame, cv2.COLOR_BGR2GRAY)
 
-    cv2.rectangle(image_frame, (200, 100), (imh - 200, imw - 100), (0,255,0), 2)
+        faces = face_detector.detectMultiScale(gray, 1.3, 5)
 
-    if cv2.waitKey(1) & 0xFF == ord('s') or start:
-        for (x, y, w, h) in faces:
+        imw, imh, imc = image_frame.shape
 
-            cv2.rectangle(image_frame, (x,y), (x+w, y+h), (255, 0, 0))
+        cv2.rectangle(image_frame, (200, 100), (imh - 200, imw - 100), (0,255,0), 2)
 
-            count += 1
+        if cv2.waitKey(1) & 0xFF == ord('s') or start:
+            for (x, y, w, h) in faces:
 
-            cv2.imwrite('./datasets/User.' + str(face_id) + '.' + str(count) + '.jpg', gray[y:y+h, x:x+w])
+                cv2.rectangle(image_frame, (x,y), (x+w, y+h), (255, 0, 0))
 
-            start = True
+                count += 1
 
-        print(count)
+                cv2.imwrite('./datasets/User.' + str(face_id) + '.' + str(count) + '.jpg', gray[y:y+h, x:x+w])
 
-    
-    cv2.imshow('Rekam', image_frame)
+                start = True
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
-    elif count > samples:
-        break
+            print("Mengambil wajah ({}%)".format(count))
 
-vid_cam.release()
-cv2.destroyAllWindows()
+        
+        cv2.imshow('Rekam', image_frame)
+
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+        elif count >= samples:
+            break
+
+    vid_cam.release()
+    cv2.destroyAllWindows()
+
+    print("Perekaman berhasil")
+
+    trainer.start()

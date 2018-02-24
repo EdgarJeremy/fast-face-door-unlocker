@@ -26,9 +26,6 @@ def getImageAndLabels(path):
         img_numpy = np.array(PIL_img, 'uint8')
 
         id = int(os.path.split(imagePath)[-1].split('.')[1])
-
-        print(id)
-
         faces = detector.detectMultiScale(img_numpy)
 
         for (x, y, w, h) in faces:
@@ -40,12 +37,14 @@ def getImageAndLabels(path):
         
     return faceSamples, ids
 
-
-faces, ids = getImageAndLabels('./datasets')
-
-recognizer.train(faces, np.array(ids))
-
-if(cv2.__version__ == '3.2.0'):
-    recognizer.save('./training/trainer.yml')
-else:
-    recognizer.write('./training/trainer.yml')
+def start():
+    print("Mengambil gambar direktori datasets..")
+    faces, ids = getImageAndLabels('./datasets')
+    print("Sedang berlatih mengenali...")
+    recognizer.train(faces, np.array(ids))
+    print("Latihan selesai, menyimpan konfigurasi..")
+    if(cv2.__version__ == '3.2.0'):
+        recognizer.save('./training/trainer.yml')
+    else:
+        recognizer.write('./training/trainer.yml')
+    print("Konfigurasi tersimpan")
