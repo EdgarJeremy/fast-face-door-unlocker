@@ -4,7 +4,10 @@ import cv2, os
 import numpy as np
 from PIL import Image
 
-recognizer = cv2.face.createLBPHFaceRecognizer()
+if(cv2.__version__ == '3.2.0'):
+    recognizer = cv2.face.createLBPHFaceRecognizer()
+else:
+    recognizer = cv2.face.LBPHFaceRecognizer_create()
 
 detector = cv2.CascadeClassifier('./cascades/haarcascade_frontalface_default.xml')
 
