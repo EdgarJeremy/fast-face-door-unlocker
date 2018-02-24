@@ -4,7 +4,10 @@ import cv2
 import numpy as np
 import base64
 
-recognizer = cv2.face.createLBPHFaceRecognizer()
+if(cv2.__version__ == '3.2.0'):
+    recognizer = cv2.face.createLBPHFaceRecognizer()
+else:
+    recognizer = cv2.face.LBPHFaceRecognizer_create()
 
 recognizer.load('./training/trainer.yml')
 
