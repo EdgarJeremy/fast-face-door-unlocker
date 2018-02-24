@@ -1,13 +1,18 @@
 #!/usr/bin/python
 
 import cv2
+import db
 
 vid_cam = cv2.VideoCapture(0)
 face_detector = cv2.CascadeClassifier('./cascades/haarcascade_frontalface_default.xml')
 
-face_id = raw_input("Masukkan ID : ")
+nama = raw_input("Masukkan Nama : ")
+print("Menginput ke database...")
+face_id = db.simpan(nama)
+print("Tersimpan {} dengan id {}".format(nama,face_id))
 count = 0
-samples = 300
+samples = 100
+start = False
 
 while(True):
 
@@ -17,15 +22,24 @@ while(True):
 
     faces = face_detector.detectMultiScale(gray, 1.3, 5)
 
-    for (x, y, w, h) in faces:
+    imw, imh, imc = image_frame.shape
 
-        cv2.rectangle(image_frame, (x,y), (x+w, y+h), (255, 0, 0))
+    cv2.rectangle(image_frame, (200, 100), (imh - 200, imw - 100), (0,255,0), 2)
 
-        count += 1
+    if cv2.waitKey(1) & 0xFF == ord('s') or start:
+        for (x, y, w, h) in faces:
 
-        cv2.imwrite('./datasets/User.' + str(face_id) + '.' + str(count) + '.jpg', gray[y:y+h, x:x+w])
+            cv2.rectangle(image_frame, (x,y), (x+w, y+h), (255, 0, 0))
 
-    print(count)
+            count += 1
+
+            cv2.imwrite('./datasets/User.' + str(face_id) + '.' + str(count) + '.jpg', gray[y:y+h, x:x+w])
+
+            start = True
+
+        print(count)
+
+    
     cv2.imshow('Rekam', image_frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
