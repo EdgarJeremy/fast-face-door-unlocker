@@ -31,6 +31,8 @@ def start():
 
     padding = 20
 
+    lock = True
+
     while True:
 
         name = 'Tidak dikenal'
@@ -39,7 +41,7 @@ def start():
 
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
 
-        faces = faceCascade.detectMultiScale(gray, 1.5, 5)
+        faces = faceCascade.detectMultiScale(gray, 2, 5)
         
         if(len(faces) > 0):
 
@@ -47,22 +49,30 @@ def start():
             #cv2.rectangle(im, (x-padding, y-padding), (x+w+padding, y+h+padding), (0, 255, 0), 2)
 
             id, level_cocok = recognizer.predict(gray[y:y+h, x:x+w])
-            print(id)
-            print(level_cocok)
-
+            2
             if(level_cocok < 70):
                 name = db.getNama(id)
+                socketIO.emit("unlock", name)
             else:
                 name = 'Tidak dikenal'
+                socketIO.emit("invalid", (id, level_cocok))
 
             # cv2.rectangle(im, (x-22, y-90), (x+w+22, y-22), (0, 255, 0), -1)
             cv2.putText(im, str(name), (x, y-40), font, 1, (0,0,0), 3)
 
+        else:
+
+            socketIO.emit("neutral", "...")
+
         cv2.imshow('Feed', im)
+
         _, buf = cv2.imencode(".jpg", im)
+
         encode = base64.b64encode(buf)
-        socketIO.emit("stream",encode)
-        
+
+        # socketIO.emit("stream",encode)
+
+
         if(cv2.waitKey(1) & 0xFF == ord('q')):
             break
 
